@@ -42,7 +42,7 @@ node[:webapp][:static].each do |app|
     )
 
     if File.exists?("#{node[:nginx][:dir]}/sites-enabled/#{app[:id]}.conf")
-      notifies :reload, 'service[nginx]'
+      notifies :restart, 'service[nginx]'
     end
   end
 
