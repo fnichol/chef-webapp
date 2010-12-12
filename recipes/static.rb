@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-node[:webapp][:static].each do |app|
+node[:webapp].select { |a| a[:profile] == "static" }.each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
 
