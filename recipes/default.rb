@@ -18,3 +18,4 @@
 #
 
 include_recipe "webapp::static"
+include_recipe "webapp::rack"

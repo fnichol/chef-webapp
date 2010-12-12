@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "rvm_passenger::nginx"
+
 node[:webapp][:apps].select { |a| a[:profile] == "rack" }.each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
