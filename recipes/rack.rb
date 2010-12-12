@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-node[:webapp].select { |a| a[:profile] == "rack" }.each do |app|
+node[:webapp][:apps].select { |a| a[:profile] == "rack" }.each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
 
