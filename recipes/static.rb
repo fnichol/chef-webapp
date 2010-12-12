@@ -40,6 +40,10 @@ node[:webapp][:static].each do |app|
       :listen_ports => app[:listen_ports] || node[:webapp][:default][:listen_ports],
       :www_redirect => www_redirect
     )
+
+    if File.exists?("#{node[:nginx][:dir]}/sites-enabled/#{app[:id]}.conf")
+      notifies :reload, 'service[nginx]'
+    end
   end
 
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
