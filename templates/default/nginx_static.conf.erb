@@ -21,12 +21,12 @@ server {
 
   root              <%= @docroot %>;
 
+  if (-f $document_root/system/maintenance.html) {
+    rewrite ^(.*)$ /system/maintenance.html break;
+  }
+
   location / {
     index           index.html;
-
-    if (-f $document_root/system/maintenance.html) {
-      rewrite ^(.*)$ /system/maintenance.html break;
-    }
   }
 
   error_log         <%= node[:nginx][:log_dir] %>/<%= @app %>-error.log;
