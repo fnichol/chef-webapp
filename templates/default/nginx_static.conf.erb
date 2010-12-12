@@ -22,7 +22,7 @@ server {
   root              <%= @docroot %>;
 
   location / {
-    index           index.html
+    index           index.html;
   }
 
   error_log         <%= node[:nginx][:log_dir] %>/<%= @app %>-error.log;
