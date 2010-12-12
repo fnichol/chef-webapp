@@ -20,6 +20,12 @@
 node[:webapps][:static].each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
+
+  if app[:www_redirect].nil? || app[:www_redirect] == "yes"
+    www_redirect = true
+  else
+    www_redirect = false
+  end
   
   template "#{node[:nginx][:dir]}/sites-available/#{app[:id]}.conf" do
     source "nginx_static.conf.erb"
@@ -32,6 +38,7 @@ node[:webapps][:static].each do |app|
       :host_name => app[:host_name],
       :host_aliases => app[:host_aliases] || [],
       :listen_ports => app[:listen_ports] || node[:webapps][:default][:listen_ports],
+      :www_redirect => www_redirect
     )
   end
 
