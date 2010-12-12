@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-node[:webapps][:static].each do |app|
+node[:webapp][:static].each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
 
@@ -37,15 +37,15 @@ node[:webapps][:static].each do |app|
       :app => app[:id],
       :host_name => app[:host_name],
       :host_aliases => app[:host_aliases] || [],
-      :listen_ports => app[:listen_ports] || node[:webapps][:default][:listen_ports],
+      :listen_ports => app[:listen_ports] || node[:webapp][:default][:listen_ports],
       :www_redirect => www_redirect
     )
   end
 
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
     directory dir do
-      owner app[:user] || node[:webapps][:default][:user]
-      group app[:group] || app[:user] || node[:webapps][:default][:user]
+      owner app[:user] || node[:webapp][:default][:user]
+      group app[:group] || app[:user] || node[:webapp][:default][:user]
       mode '0755'
       recursive true
     end
