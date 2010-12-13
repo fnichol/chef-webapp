@@ -34,8 +34,8 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
   deploy_to = "/srv/#{params[:name]}"
   deploy_user_home_dir = "/home/#{params[:user]}"
 
-  site_vars {
-      :docroot => "#{deploy_to}/current/public",
+  site_vars = {
+      :docroot      => "#{deploy_to}/current/public",
       :app          => params[:name],
       :host_name    => params[:host_name],
       :host_aliases => params[:host_aliases],
