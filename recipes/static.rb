@@ -57,6 +57,11 @@ node[:webapp][:apps].select { |a| a[:profile] == "static" }.each do |app|
 
   nginx_site "#{app[:id]}.conf" do
     notifies :restart, 'service[nginx]'
+    if app[:status].nil? || app[:status] == "enable"
+      enable true
+    else
+      enable false
+    end
   end
 end
 
