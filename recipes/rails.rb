@@ -67,6 +67,8 @@ node[:webapp][:apps].select { |a| a[:profile] == "rails" }.each do |app|
 
   link "#{deploy_user_home_dir}/#{app[:id]}" do
     to deploy_to
+    owner deploy_user
+    group deploy_group
     if app[:status].nil? || app[:status] == "enable"
       action :create
     else

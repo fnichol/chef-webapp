@@ -22,6 +22,9 @@ include_recipe "rvm_passenger::nginx"
 node[:webapp][:apps].select { |a| a[:profile] == "rack" }.each do |app|
 
   deploy_to = "/srv/#{app[:id]}"
+  deploy_user = app[:user] || node[:webapp][:default][:user]
+  deploy_group = app[:group] || app[:user] || node[:webapp][:default][:user]
+  deploy_user_home_dir = "/home/#{deploy_user}"
 
   if app[:www_redirect].nil? || app[:www_redirect] == "yes"
     www_redirect = true
@@ -48,12 +51,27 @@ node[:webapp][:apps].select { |a| a[:profile] == "rack" }.each do |app|
     end
   end
 
+  user_account deploy_user do
+    gid deploy_group
+  end
+
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
     directory dir do
-      owner app[:user] || node[:webapp][:default][:user]
-      group app[:group] || app[:user] || node[:webapp][:default][:user]
+      owner deploy_user
+      group deploy_group
       mode '0755'
       recursive true
+    end
+  end
+
+  link "#{deploy_user_home_dir}/#{app[:id]}" do
+    to deploy_to
+    owner deploy_user
+    group deploy_group
+    if app[:status].nil? || app[:status] == "enable"
+      action :create
+    else
+      action :delete
     end
   end
 
