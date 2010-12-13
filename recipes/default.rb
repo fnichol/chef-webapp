@@ -54,13 +54,11 @@ node[:webapp][:apps].each do |app|
     end
 
     if app[:profile] == "rails"
-      site_vars {
-        :rails_env    => app[:env] || "production"
-      }
+      env = app[:env] || "production"
+      site_vars { :rails_env => env }
     elsif app[:profile] == "rack"
-      site_vars {
-        :rack_env    => app[:env] || "production"
-      }
+      env = app[:env] || "production"
+      site_vars { :rack_env => env }
     end
   end
 end
