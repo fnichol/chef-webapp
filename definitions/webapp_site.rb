@@ -75,7 +75,7 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     end
   end
 
-  link "#{deploy_user_home_dir}/#{app[:id]}" do
+  link "#{deploy_user_home_dir}/#{params[:name]}" do
     to deploy_to
     owner params[:user]
     group params[:group]
@@ -86,7 +86,7 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     end
   end
 
-  nginx_site "#{app[:id]}.conf" do
+  nginx_site "#{params[:name]}.conf" do
     notifies :restart, 'service[nginx]'
     if params[:enable]
       enable true
