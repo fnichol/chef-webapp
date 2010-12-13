@@ -23,12 +23,14 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     :listen_ports => nil, :site_vars => nil, :ssh_keys => [],
     :purge => false, :enable => true do
 
-  params[:user] ||= node[:webapp][:default][:user]
-  params[:group] ||= params[:user] || node[:webapp][:default][:user]
   params[:listen_ports] ||= node[:webapp][:default][:listen_ports]
 
   if params[:purge]
     params[:enable] = false
+  end
+
+  if %w{rails rack}.include?(params[:profile])
+    include_recipe "rvm_passenger::nginx"
   end
 
   deploy_to = "/srv/#{params[:name]}"
@@ -58,11 +60,6 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     if params[:purge]
       action :delete
     end
-  end
-
-  user_account params[:user] do
-    gid      params[:group]
-    ssh_keys params[:ssh_keys]
   end
 
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|

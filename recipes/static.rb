@@ -19,67 +19,38 @@
 
 node[:webapp][:apps].select { |a| a[:profile] == "static" }.each do |app|
 
-  deploy_to = "/srv/#{app[:id]}"
-  deploy_user = app[:user] || node[:webapp][:default][:user]
-  deploy_group = app[:group] || app[:user] || node[:webapp][:default][:user]
-  deploy_user_home_dir = "/home/#{deploy_user}"
+  app_user = app[:user] || node[:webapp][:default][:user]
+  app_group = app[:group] || app[:user] || node[:webapp][:default][:user]
 
-  if app[:www_redirect].nil? || app[:www_redirect] == "yes"
-    www_redirect = true
-  else
-    www_redirect = false
-  end
-  
-  template "#{node[:nginx][:dir]}/sites-available/#{app[:id]}.conf" do
-    source "nginx_static.conf.erb"
-    owner 'root'
-    group 'root'
-    mode '0644'
-    variables(
-      :docroot => "#{deploy_to}/current/public",
-      :app => app[:id],
-      :host_name => app[:host_name],
-      :host_aliases => app[:host_aliases] || [],
-      :listen_ports => app[:listen_ports] || node[:webapp][:default][:listen_ports],
-      :www_redirect => www_redirect
-    )
-
-    if File.exists?("#{node[:nginx][:dir]}/sites-enabled/#{app[:id]}.conf")
-      notifies :restart, 'service[nginx]'
-    end
+  user_account app_user do
+    gid       app_group
+    ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
   end
 
-  user_account deploy_user do
-    gid         deploy_group
-    ssh_keys node[:webapp][:users][deploy_user][:deploy_keys]
-  end
+  webapp_site app[:id] do
+    profile       app[:profile]
+    user          app_user
+    group         app_group
+    host_name     app[:host_name]
+    host_aliases  app[:host_aliases] || []
+    listen_ports  app[:listen_ports]
 
-  [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
-    directory dir do
-      owner deploy_user
-      group deploy_group
-      mode '0755'
-      recursive true
-    end
-  end
-
-  link "#{deploy_user_home_dir}/#{app[:id]}" do
-    to deploy_to
-    owner deploy_user
-    group deploy_group
-    if app[:status].nil? || app[:status] == "enable"
-      action :create
+    if app[:www_redirect].nil? || app[:www_redirect] == "yes"
+      www_redirect true
     else
-      action :delete
+      www_redirect false
     end
-  end
 
-  nginx_site "#{app[:id]}.conf" do
-    notifies :restart, 'service[nginx]'
     if app[:status].nil? || app[:status] == "enable"
       enable true
     else
       enable false
+    end
+
+    if app[:purge] == "yes"
+      purge true
+    else
+      purge false
     end
   end
 end
