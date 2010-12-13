@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: webapp
-# Recipe:: static
+# Recipe:: default
 #
 # Copyright 2010, Fletcher Nichol
 #
@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-node[:webapp][:apps].select { |a| a[:profile] == "static" }.each do |app|
+node[:webapp][:apps].each do |app|
 
   app_user = app[:user] || node[:webapp][:default][:user]
   app_group = app[:group] || app[:user] || node[:webapp][:default][:user]
@@ -51,6 +51,16 @@ node[:webapp][:apps].select { |a| a[:profile] == "static" }.each do |app|
       purge true
     else
       purge false
+    end
+
+    if app[:profile] == "rails"
+      site_vars {
+        :rails_env    => app[:env] || "production"
+      }
+    elsif app[:profile] == "rack"
+      site_vars {
+        :rack_env    => app[:env] || "production"
+      }
     end
   end
 end

@@ -17,6 +17,51 @@
 # limitations under the License.
 #
 
-include_recipe "webapp::static"
-include_recipe "webapp::rack"
-include_recipe "webapp::rails"
+node[:webapp][:apps].each do |app|
+
+  app_user = app[:user] || node[:webapp][:default][:user]
+  app_group = app[:group] || app[:user] || node[:webapp][:default][:user]
+
+  user_account app_user do
+    gid       app_group
+    ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
+  end
+
+  webapp_site app[:id] do
+    profile       app[:profile]
+    user          app_user
+    group         app_group
+    host_name     app[:host_name]
+    host_aliases  app[:host_aliases] || []
+    listen_ports  app[:listen_ports]
+
+    if app[:www_redirect].nil? || app[:www_redirect] == "yes"
+      www_redirect true
+    else
+      www_redirect false
+    end
+
+    if app[:status].nil? || app[:status] == "enable"
+      enable true
+    else
+      enable false
+    end
+
+    if app[:purge] == "yes"
+      purge true
+    else
+      purge false
+    end
+
+    if app[:profile] == "rails"
+      site_vars {
+        :rails_env    => app[:env] || "production"
+      }
+    elsif app[:profile] == "rack"
+      site_vars {
+        :rack_env    => app[:env] || "production"
+      }
+    end
+  end
+end
+
