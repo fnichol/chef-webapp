@@ -50,7 +50,8 @@ node[:webapp][:apps].select { |a| a[:profile] == "static" }.each do |app|
   end
 
   user_account deploy_user do
-    gid deploy_group
+    gid         deploy_group
+    deploy_keys node[:webapp][:users][deploy_user.to_sym][:deploy_keys]
   end
 
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
