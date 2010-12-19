@@ -66,7 +66,7 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     directory dir do
       owner params[:user]
       group params[:group]
-      mode '0755'
+      mode '2775'
       recursive true
 
       if params[:purge]
