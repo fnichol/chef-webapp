@@ -27,6 +27,11 @@ node[:webapp][:apps].each do |app|
     ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
   end
 
+  group "rvm" do
+    members [app_user]
+    append  true
+  end
+
   webapp_site app[:id] do
     profile       app[:profile]
     user          app_user
