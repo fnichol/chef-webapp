@@ -21,13 +21,9 @@
 define :webapp_site, :profile => "static", :user => nil, :group => nil, 
     :www_redirect => true, :host_name => nil, :host_aliases => [], 
     :listen_ports => nil, :site_vars => nil, :ssh_keys => [],
-    :purge => false, :enable => true do
+    :action => :create do
 
   params[:listen_ports] ||= node[:webapp][:default][:listen_ports]
-
-  if params[:purge]
-    params[:enable] = false
-  end
 
   if %w{rails rack}.include?(params[:profile])
     include_recipe "rvm_passenger::nginx"
@@ -54,23 +50,23 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     variables   site_vars
 
     if File.exists?("#{node[:nginx][:dir]}/sites-enabled/#{params[:name]}.conf")
-      notifies :restart, 'service[nginx]'
+      notifies  :restart, 'service[nginx]'
     end
 
-    if params[:purge]
-      action :delete
+    if params[:action] == :delete
+      action    :delete 
     end
   end
 
   [ deploy_to, "#{deploy_to}/shared" ].each do |dir|
     directory dir do
-      owner params[:user]
-      group params[:group]
-      mode '2775'
+      owner     params[:user]
+      group     params[:group]
+      mode      '2775'
       recursive true
 
-      if params[:purge]
-        action :delete
+      if params[:action] == :delete
+        action  :delete 
       end
     end
   end
@@ -79,19 +75,11 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
     to deploy_to
     owner params[:user]
     group params[:group]
-    if params[:enable]
+
+    if params[:action] == :create
       action :create
     else
       action :delete
-    end
-  end
-
-  nginx_site "#{params[:name]}.conf" do
-    notifies :restart, 'service[nginx]'
-    if params[:enable]
-      enable true
-    else
-      enable false
     end
   end
 end

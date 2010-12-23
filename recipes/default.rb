@@ -32,38 +32,44 @@ node[:webapp][:apps].each do |app|
     append  true
   end
 
+  # disable site before potentially removing files
+  if !app[:action].nil? && app[:action] != "create"
+    nginx_site "#{app[:id]}.conf" do
+      notifies  :restart, 'service[nginx]'
+      enable    false 
+    end
+  end
+
   webapp_site app[:id] do
-    profile       app[:profile]
-    user          app_user
-    group         app_group
-    host_name     app[:host_name]
-    host_aliases  app[:host_aliases] || []
-    listen_ports  app[:listen_ports]
+    profile         app[:profile]
+    user            app_user
+    group           app_group
+    host_name       app[:host_name]
+    host_aliases    app[:host_aliases] || []
+    listen_ports    app[:listen_ports]
 
-    if app[:www_redirect].nil? || app[:www_redirect] == "yes"
-      www_redirect true
-    else
-      www_redirect false
+    if app[:www_redirect] == "delete"
+      www_redirect  false 
     end
 
-    if app[:status].nil? || app[:status] == "enable"
-      enable true
-    else
-      enable false
-    end
-
-    if app[:purge] == "yes"
-      purge true
-    else
-      purge false
+    unless app[:action].nil?
+      action        app[:action].to_sym
     end
 
     if app[:profile] == "rails"
       env = app[:env] || "production"
-      site_vars :rails_env => env
+      site_vars     :rails_env => env
     elsif app[:profile] == "rack"
       env = app[:env] || "production"
-      site_vars :rack_env => env
+      site_vars     :rack_env => env
+    end
+  end
+
+  # enable site after potentially creating files
+  if app[:action].nil? || app[:action] == "create"
+    nginx_site "#{app[:id]}.conf" do
+      notifies  :restart, 'service[nginx]'
+      enable    true 
     end
   end
 end
