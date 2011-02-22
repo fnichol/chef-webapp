@@ -41,27 +41,39 @@ node[:webapp][:apps].each do |app|
   end
 
   webapp_site app[:id] do
-    profile         app[:profile]
-    user            app_user
-    group           app_group
-    host_name       app[:host_name]
-    host_aliases    app[:host_aliases] || []
-    listen_ports    app[:listen_ports]
+    profile             app[:profile]
+    user                app_user
+    group               app_group
+    host_name           app[:host_name]
+    host_aliases        app[:host_aliases] || []
+    listen_ports        app[:listen_ports]
 
     if app[:www_redirect] == "delete"
-      www_redirect  false 
+      www_redirect      false
+    end
+
+    if app[:ssl_www_redirect] == "delete"
+      ssl_www_redirect  false
+    end
+
+    if app[:non_ssl_server] == "disable"
+      non_ssl_server    false
+    end
+
+    if app[:ssl_server] == "enable"
+      ssl_server        true
     end
 
     unless app[:action].nil?
-      action        app[:action].to_sym
+      action            app[:action].to_sym
     end
 
     if app[:profile] == "rails"
       env = app[:env] || "production"
-      site_vars     :rails_env => env
+      site_vars         :rails_env => env
     elsif app[:profile] == "rack"
       env = app[:env] || "production"
-      site_vars     :rack_env => env
+      site_vars         :rack_env => env
     end
   end
 
