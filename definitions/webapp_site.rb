@@ -31,6 +31,8 @@ define :webapp_site, :profile => "static", :user => nil, :group => nil,
 
   if %w{rails rack}.include?(params[:profile])
     include_recipe "rvm_passenger::nginx"
+  elsif %w{php}.include?(params[:profile])
+    include_recipe "php::php5-fpm"
   end
 
   deploy_to = "/srv/#{params[:name]}"
