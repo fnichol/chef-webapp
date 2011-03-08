@@ -63,7 +63,7 @@ server {
  
   root                <%= @docroot %>;
 
-  passenger_enabled on;
+  passenger_enabled   on;
   rails_env           <%= @rails_env %>;
 
   if (-f $document_root/system/maintenance.html) {
