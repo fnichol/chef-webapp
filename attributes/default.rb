@@ -1,10 +1,11 @@
 default[:webapp][:apps] = []
 
-default[:webapp][:users][:deploy][:deploy_keys] = []
+default[:webapp][:web_server] = "nginx"
 
-default[:webapp][:default][:listen_ports] = [ 80 ]
-default[:webapp][:default][:ssl_listen_ports] = [ 443 ]
+default[:webapp][:sites_root] = "/srv"
+default[:webapp][:ssl][:certs_dir] = "/etc/ssl/certs"
+default[:webapp][:ssl][:keys_dir] = "/etc/ssl/private"
+
 default[:webapp][:default][:user] = "deploy"
 
-default[:webapp][:default][:ssl_cert] = "ssl-cert-snakeoil.pem"
-default[:webapp][:default][:ssl_key]  = "ssl-cert-snakeoil.key"
+default[:webapp][:users][:deploy][:deploy_keys] = []

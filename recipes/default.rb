@@ -32,57 +32,28 @@ node[:webapp][:apps].each do |app|
     append  true
   end
 
-  # disable site before potentially removing files
-  if !app[:action].nil? && app[:action] != "create"
-    nginx_site "#{app[:id]}.conf" do
-      notifies  :restart, 'service[nginx]'
-      enable    false 
-    end
+  if %w{rails rack}.include?(app[:profile])
+    include_recipe "rvm_passenger::#{node[:webapp][:web_server]}"
+  elsif %w{php}.include?(app[:profile])
+    include_recipe "php::php5-fpm"
   end
 
-  webapp_site app[:id] do
-    profile             app[:profile]
-    user                app_user
-    group               app_group
-    host_name           app[:host_name]
-    host_aliases        app[:host_aliases] || []
-    listen_ports        app[:listen_ports]
-
-    if app[:www_redirect] == "delete"
-      www_redirect      false
-    end
-
-    if app[:ssl_www_redirect] == "delete"
-      ssl_www_redirect  false
-    end
-
-    if app[:non_ssl_server] == "disable"
-      non_ssl_server    false
-    end
-
-    if app[:ssl_server] == "enable"
-      ssl_server        true
-    end
-
-    unless app[:action].nil?
-      action            app[:action].to_sym
-    end
-
-    if app[:profile] == "rails"
-      env = app[:env] || "production"
-      site_vars         :rails_env => env
-    elsif app[:profile] == "rack"
-      env = app[:env] || "production"
-      site_vars         :rack_env => env
-    end
-  end
-
-  # enable site after potentially creating files
-  if app[:action].nil? || app[:action] == "create"
-    nginx_site "#{app[:id]}.conf" do
-      notifies  :restart, 'service[nginx]'
-      enable    true 
-    end
+  webapp_site_skel app[:id] do
+    profile           app[:profile]           if app[:profile]
+    user              app[:user]              if app[:user]
+    group             app[:group]             if app[:group]
+    host_name         app[:host_name]         if app[:host_name]
+    host_aliases      app[:host_aliases]      if app[:host_aliases]
+    non_ssl_server    app[:non_ssl_server]    unless app[:non_ssl_server].nil?
+    listen_ports      app[:listen_ports]      if app[:listen_ports]
+    www_redirect      app[:www_redirect]      unless app[:www_redirect].nil?
+    ssl_server        app[:ssl_server]        unless app[:ssl_server].nil?
+    ssl_listen_ports  app[:ssl_listen_ports]  if app[:ssl_listen_ports]
+    ssl_www_redirect  app[:ssl_www_redirect]  unless app[:ssl_www_redirect].nil?
+    ssl_cert          app[:ssl_cert]          if app[:ssl_cert]
+    ssl_key           app[:ssl_key]           if app[:ssl_key]
+    env               app[:env]               if app[:env]
+    site_vars         app[:site_vars]         if app[:site_vars]
+    action            app[:action].to_sym     if app[:action]
   end
 end
-
