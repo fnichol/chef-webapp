@@ -27,9 +27,11 @@ node[:webapp][:apps].each do |app|
     ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
   end
 
-  group "rvm" do
-    members [app_user]
-    append  true
+  unless platform?("suse")
+    group "rvm" do
+      members [app_user]
+      append  true
+    end
   end
 
   if %w{rails rack}.include?(app[:profile])

@@ -140,6 +140,23 @@ def nginx_site_conf(exec_action)
 end
 
 ##
+# Converges the web application virtual host state for an apache2 host.
+#
+# @param [:create, :delete] desired state of the virtual host
+def apache2_site_conf(exec_action)
+  template "#{node[:apache][:dir]}/sites-available/#{new_resource.name}.conf" do
+    source      "apache2_#{new_resource.profile}.conf.erb"
+    cookbook    'webapp'
+    owner       'root'
+    group       'root'
+    mode        '0644'
+    variables   site_vars
+    notifies    :restart, resources(:service => "apache2"), :delayed
+    action      exec_action
+  end
+end
+
+##
 # Prepares state of deployment directories for the web application.
 #
 # @param [:create, :delete] desired state
@@ -201,6 +218,36 @@ def nginx_site_enable(exec_action)
       only_if do
         ::File.symlink?(
           "#{node[:nginx][:dir]}/sites-enabled/#{new_resource.name}.conf")
+      end
+    end
+  end
+end
+
+##
+# Enable/disable an apache2 site. This was pinched from
+# opscode/cookbooks/apache/definitions/apache_site.rb as definitions cannot
+# be triggered on demand.
+#
+# @param [:enable, :disable] whether to enable or disable the virtual host
+def apache2_site_enable(exec_action)
+  if exec_action == :enable
+    execute "a2ensite #{new_resource.name}" do
+      command "/usr/sbin/a2ensite #{new_resource.name}"
+      notifies :restart, resources(:service => "apache2")
+      not_if do 
+        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}") or
+          ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/000-#{new_resource.name}")
+      end
+      only_if do
+        ::File.exists?("#{node[:apache][:dir]}/sites-available/#{new_resource.name}")
+      end
+    end
+  else
+    execute "a2dissite #{new_resource.name}" do
+      command "/usr/sbin/a2dissite #{new_resource.name}"
+      notifies :restart, resources(:service => "apache2")
+      only_if do
+        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}")
       end
     end
   end
