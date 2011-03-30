@@ -8,7 +8,11 @@ server {
 <% @listen_ports.each do |port| -%>
   listen              <%= port %>;
 <% end -%>
+<% if @host_name.nil? -%>
+  server_name         www.*;
+<% else -%>
   server_name         www.<%= @host_name %>;
+<% end -%>
 
   rewrite ^/(.*)      http://<%= @host_name %>/$1 permanent;
 }
@@ -19,7 +23,11 @@ server {
 <% @listen_ports.each do |port| -%>
   listen              <%= port %>;
 <% end -%>
+<% if @host_name.nil? -%>
+  server_name         "";
+<% else -%>
   server_name         <%= @host_name %><% @host_aliases.each do |a| %><%= " #{a}" %> <% end %>;
+<% end -%>
 
   root                <%= @docroot %>;
 
@@ -40,7 +48,11 @@ server {
 <% @ssl_listen_ports.each do |port| -%>
   listen              <%= port %>;
 <% end -%>
+<% if @host_name.nil? -%>
+  server_name         www.*;
+<% else -%>
   server_name         www.<%= @host_name %>;
+<% end -%>
 
   ssl                 on;
   ssl_certificate     <%= @ssl_cert %>;
@@ -55,7 +67,11 @@ server {
 <% @ssl_listen_ports.each do |port| -%>
   listen              <%= port %>;
 <% end -%>
+<% if @host_name.nil? -%>
+  server_name         "";
+<% else -%>
   server_name         <%= @host_name %><% @host_aliases.each do |a| %><%= " #{a}" %> <% end %>;
+<% end -%>
 
   ssl                 on;
   ssl_certificate     <%= @ssl_cert %>;

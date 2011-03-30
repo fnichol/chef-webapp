@@ -27,15 +27,19 @@ node[:webapp][:apps].each do |app|
     ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
   end
 
-  unless platform?("suse")
-    group "rvm" do
-      members [app_user]
-      append  true
-    end
+  group "rvm" do
+    members [app_user]
+    append  true
   end
 
   if %w{rails rack}.include?(app[:profile])
     include_recipe "rvm_passenger::#{node[:webapp][:web_server]}"
+
+    # skip generation of ri and rdoc
+    cookbook_file "/etc/gemrc" do
+      source  "gemrc"
+      mode    "0644"
+    end
   elsif %w{php}.include?(app[:profile])
     include_recipe "php::php5-fpm"
   end

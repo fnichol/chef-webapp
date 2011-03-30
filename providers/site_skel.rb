@@ -92,7 +92,7 @@ def site_vars
   site_vars = {
       :docroot          => ::File.join(deploy_to, "current", "public"),
       :app              => new_resource.name,
-      :host_name        => new_resource.host_name || node[:fqdn],
+      :host_name        => new_resource.host_name,
       :host_aliases     => new_resource.host_aliases,
       :listen_ports     => new_resource.listen_ports,
       :ssl_listen_ports => new_resource.ssl_listen_ports,
@@ -144,6 +144,8 @@ end
 #
 # @param [:create, :delete] desired state of the virtual host
 def apache2_site_conf(exec_action)
+  apache_module "rewrite" if new_resource.www_redirect
+
   template "#{node[:apache][:dir]}/sites-available/#{new_resource.name}.conf" do
     source      "apache2_#{new_resource.profile}.conf.erb"
     cookbook    'webapp'
@@ -231,23 +233,23 @@ end
 # @param [:enable, :disable] whether to enable or disable the virtual host
 def apache2_site_enable(exec_action)
   if exec_action == :enable
-    execute "a2ensite #{new_resource.name}" do
-      command "/usr/sbin/a2ensite #{new_resource.name}"
+    execute "a2ensite #{new_resource.name}.conf" do
+      command "/usr/sbin/a2ensite #{new_resource.name}.conf"
       notifies :restart, resources(:service => "apache2")
       not_if do 
-        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}") or
-          ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/000-#{new_resource.name}")
+        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}.conf") or
+          ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/000-#{new_resource.name}.conf")
       end
       only_if do
-        ::File.exists?("#{node[:apache][:dir]}/sites-available/#{new_resource.name}")
+        ::File.exists?("#{node[:apache][:dir]}/sites-available/#{new_resource.name}.conf")
       end
     end
   else
-    execute "a2dissite #{new_resource.name}" do
-      command "/usr/sbin/a2dissite #{new_resource.name}"
+    execute "a2dissite #{new_resource.name}.conf" do
+      command "/usr/sbin/a2dissite #{new_resource.name}.conf"
       notifies :restart, resources(:service => "apache2")
       only_if do
-        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}")
+        ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}.conf")
       end
     end
   end
