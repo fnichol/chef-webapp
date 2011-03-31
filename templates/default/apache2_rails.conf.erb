@@ -31,13 +31,11 @@
     Allow from all
   </Directory>
 
-  <Location />
-    ErrorDocument 503 /system/maintenance.html
-    RewriteEngine On
-    RewriteCond %{REQUEST_URI} !\.(css|gif|jpg|png)$
-    RewriteCond %{DOCUMENT_ROOT}/system/maintenance.html -f
-    RewriteCond %{SCRIPT_FILENAME} !maintenance.html
-    RewriteRule ^.*$  -  [redirect=503,last]
-  </Location>
+  ErrorDocument 503 /system/maintenance.html
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} !\.(css|gif|jpg|png)$
+  RewriteCond %{DOCUMENT_ROOT}/system/maintenance.html -f
+  RewriteCond %{SCRIPT_FILENAME} !maintenance.html
+  RewriteRule ^.*$  -  [redirect=503,last]
 </VirtualHost>
 <% end -%>
