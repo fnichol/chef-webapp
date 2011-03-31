@@ -96,7 +96,7 @@ def site_vars
       # lamesauce! suse (possibly others) have an issue with symlinks
       # in the parent of the Directory:
       # http://www.mail-archive.com/capistrano@googlegroups.com/msg00614.html
-      directory_root = ::File.join(deploy_to, "current")
+      directory_root = deploy_to
     else
       directory_root = ::File.join(deploy_to, "current", "public")
     end
