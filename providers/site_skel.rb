@@ -106,7 +106,7 @@ def site_vars
 
   site_vars = {
       :docroot          => ::File.join(deploy_to, "current", "public"),
-      :directory_root   => directory_root
+      :directory_root   => directory_root,
       :app              => new_resource.name,
       :host_name        => new_resource.host_name,
       :host_aliases     => new_resource.host_aliases,
