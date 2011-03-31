@@ -26,9 +26,8 @@
 <% end -%>
 
   DocumentRoot      <%= @docroot %>
-  <Directory <%= @docroot %>>
-    Options FollowSymlinks
-    Options -MultiViews
+  <Directory <%= @directory_root %>>
+    Options FollowSymlinks -MultiViews
     Allow from all
   </Directory>
 </VirtualHost>

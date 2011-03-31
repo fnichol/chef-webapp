@@ -89,8 +89,24 @@ end
 #
 # @return [Hash] the site variables hash
 def site_vars
+  case web_server
+  when "apache2"
+    case node[:platform]
+    when "suse"
+      # lamesauce! suse (possibly others) have an issue with symlinks
+      # in the parent of the Directory:
+      # http://www.mail-archive.com/capistrano@googlegroups.com/msg00614.html
+      directory_root = ::File.join(deploy_to, "current")
+    else
+      directory_root = ::File.join(deploy_to, "current", "public")
+    end
+  when "nginx"
+    directory_root = nil
+  end
+
   site_vars = {
       :docroot          => ::File.join(deploy_to, "current", "public"),
+      :directory_root   => directory_root
       :app              => new_resource.name,
       :host_name        => new_resource.host_name,
       :host_aliases     => new_resource.host_aliases,
