@@ -144,7 +144,8 @@ end
 #
 # @param [:create, :delete] desired state of the virtual host
 def apache2_site_conf(exec_action)
-  apache_module "rewrite" if new_resource.www_redirect
+  # required for maintenance page and www_redirects
+  apache_module "rewrite"
 
   template "#{node[:apache][:dir]}/sites-available/#{new_resource.name}.conf" do
     source      "apache2_#{new_resource.profile}.conf.erb"
