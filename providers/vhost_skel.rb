@@ -67,22 +67,14 @@ end
 #
 # @params [:create, :delete] desired state of conf file
 def vhost_conf(exec_action)
-  send "#{web_server}_vhost_conf", exec_action
-end
-
-##
-# Creates/destroys an apache2 virtual host configuration file.
-#
-# @params [:create, :delete] desired state of conf file
-def apache2_vhost_conf(exec_action)
   template ::File.join(sites_available_path, "#{new_resource.name}.conf") do
-    source      "apache2_vhost.conf.erb"
+    source      "#{web_server}_vhost.conf.erb"
     cookbook    'webapp'
     owner       'root'
     group       'root'
     mode        '0644'
     variables   vhost_vars
-    notifies    :restart, resources(:service => "apache2"), :delayed
+    notifies    :restart, resources(:service => web_server), :delayed
     action      exec_action
   end
 end
@@ -205,13 +197,13 @@ def vhost_docroot(exec_action)
     d.run_action(:create)
 
     t = template ::File.join(partials_path, new_resource.name, "_docroot_stub.conf") do
-      source      "apache2_docroot_stub.conf.erb"
+      source      "#{web_server}_docroot_stub.conf.erb"
       owner       "root"
       group       "root"
       mode        "0755"
       variables   vhost_vars
       action      :nothing
-      notifies    :restart, "service[apache2]"
+      notifies    :restart, "service[#{web_server}]"
     end
     t.run_action(:create)
   end

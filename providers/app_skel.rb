@@ -78,39 +78,14 @@ def app_partial_conf(exec_action)
     action    :create
   end
 
-  send "#{web_server}_app_partial_conf".to_sym, exec_action
-end
-
-##
-# Converges the web application virtual host state for an nginx host.
-#
-# @param [:create, :delete] desired state of the virtual host
-def nginx_app_partial_conf(exec_action)
-  template "#{node[:nginx][:dir]}/sites-available/#{new_resource.name}.conf" do
-    source      "nginx_#{new_resource.profile}.conf.erb"
-    cookbook    'webapp'
-    owner       'root'
-    group       'root'
-    mode        '0644'
-    variables   site_vars
-    notifies    :restart, resources(:service => "nginx"), :delayed
-    action      exec_action
-  end
-end
-
-##
-# Converges the web application virtual host state for an apache2 host.
-#
-# @param [:create, :delete] desired state of the virtual host
-def apache2_app_partial_conf(exec_action)
   template ::File.join(partials_path, "#{new_resource.name}.conf") do
-    source      "apache2_partial_#{new_resource.profile}.conf.erb"
+    source      "#{web_server}_partial_#{new_resource.profile}.conf.erb"
     cookbook    'webapp'
     owner       'root'
     group       'root'
     mode        '0644'
     variables   site_vars
-    notifies    :restart, resources(:service => "apache2"), :delayed
+    notifies    :restart, resources(:service => web_server), :delayed
     action      exec_action
   end
 end
@@ -237,4 +212,3 @@ def partials_path
     ::File.join(node[:nginx][:dir], "webapp-partials", vhost)
   end
 end
-
