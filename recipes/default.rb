@@ -18,48 +18,70 @@
 #
 
 node[:webapp][:apps].each do |app|
+  # ensure that this app is using a valid and declared vhost
+  unless node[:webapp][:vhosts].map { |v| v[:id] }.include?(app[:vhost])
+    msg = "webapp[#{app[:id]}] refers to a vhost '#{app[:vhost]}' "
+    msg << "not in the vhosts list."
+    abort msg
+  end
 
+  # determine appropriate user and group for this app
   app_user = app[:user] || node[:webapp][:default][:user]
   app_group = app[:group] || app[:user] || node[:webapp][:default][:user]
 
+  # create a user account for the app owner
   user_account app_user do
     gid       app_group
     ssh_keys  node[:webapp][:users][app_user][:deploy_keys]
   end
 
-  group "rvm" do
-    members [app_user]
-    append  true
-  end
+  # include any runtime dependencies for the application, based on profile
+  case app[:profile]
+  when "rails", "rack"
+    include_recipe "rvm_passenger::#{web_server}"
 
-  if %w{rails rack}.include?(app[:profile])
-    include_recipe "rvm_passenger::#{node[:webapp][:web_server]}"
-
-    # skip generation of ri and rdoc
-    cookbook_file "/etc/gemrc" do
-      source  "gemrc"
-      mode    "0644"
+    # add the app owner to the rvm group to manage gems
+    group "rvm" do
+      members [app_user]
+      append  true
     end
-  elsif %w{php}.include?(app[:profile])
+  when "php"
     include_recipe "php::php5-fpm"
   end
 
-  webapp_site_skel app[:id] do
+  webapp_app_skel app[:id] do
+    vhost             app[:vhost]             # <- this is required
     profile           app[:profile]           if app[:profile]
     user              app[:user]              if app[:user]
     group             app[:group]             if app[:group]
-    host_name         app[:host_name]         if app[:host_name]
-    host_aliases      app[:host_aliases]      if app[:host_aliases]
-    non_ssl_server    app[:non_ssl_server]    unless app[:non_ssl_server].nil?
-    listen_ports      app[:listen_ports]      if app[:listen_ports]
-    www_redirect      app[:www_redirect]      unless app[:www_redirect].nil?
-    ssl_server        app[:ssl_server]        unless app[:ssl_server].nil?
-    ssl_listen_ports  app[:ssl_listen_ports]  if app[:ssl_listen_ports]
-    ssl_www_redirect  app[:ssl_www_redirect]  unless app[:ssl_www_redirect].nil?
-    ssl_cert          app[:ssl_cert]          if app[:ssl_cert]
-    ssl_key           app[:ssl_key]           if app[:ssl_key]
+    mount_path        app[:mount_path]        if app[:mount_path]
     env               app[:env]               if app[:env]
     site_vars         app[:site_vars]         if app[:site_vars]
     action            app[:action].to_sym     if app[:action]
+  end
+end
+
+node[:webapp][:vhosts].each do |vhost|
+    if web_server == "apache2"
+      # required for maintenance page and www_redirects
+      apache_module "rewrite"
+
+      include_recipe "apache2::mod_ssl" if vhost[:ssl_server]
+    end
+
+  webapp_vhost_skel vhost[:id] do
+    document_root     vhost[:document_root]     if vhost[:document_root]
+    host_name         vhost[:host_name]         if vhost[:host_name]
+    host_aliases      vhost[:host_aliases]      if vhost[:host_aliases]
+    non_ssl_server    vhost[:non_ssl_server]    unless vhost[:non_ssl_server].nil?
+    listen_ports      vhost[:listen_ports]      if vhost[:listen_ports]
+    www_redirect      vhost[:www_redirect]      unless vhost[:www_redirect].nil?
+    ssl_server        vhost[:ssl_server]        unless vhost[:ssl_server].nil?
+    ssl_listen_ports  vhost[:ssl_listen_ports]  if vhost[:ssl_listen_ports]
+    ssl_www_redirect  vhost[:ssl_www_redirect]  unless vhost[:ssl_www_redirect].nil?
+    ssl_cert          vhost[:ssl_cert]          if vhost[:ssl_cert]
+    ssl_key           vhost[:ssl_key]           if vhost[:ssl_key]
+    vhost_vars        vhost[:vhost_vars]        if vhost[:vhost_vars]
+    action            vhost[:action].to_sym     if vhost[:action]
   end
 end

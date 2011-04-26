@@ -1,4 +1,5 @@
-default[:webapp][:apps] = []
+default[:webapp][:vhosts] = []
+default[:webapp][:apps]   = []
 
 default[:webapp][:web_server] = "nginx"
 

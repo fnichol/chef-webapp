@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: webapp
-# Resource:: site_skel
+# Resource:: vhost_skel
 #
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
@@ -19,13 +19,10 @@
 # limitations under the License.
 #
 
-actions :create, :delete, :disable
+actions :create, :delete, :disable, :finalize
 
 attribute :name,              :kind_of => String, :name_attribute => true
-attribute :profile,           :kind_of => String, :default => "static",
-  :equal_to => %w{ static rails rack php }
-attribute :user,              :kind_of => String, :default => "deploy"
-attribute :group,             :kind_of => String
+attribute :document_root,     :kind_of => String
 attribute :host_name,         :kind_of => String
 attribute :host_aliases,      :kind_of => Array,  :default => []
 attribute :non_ssl_server,    :default => true
@@ -38,11 +35,9 @@ attribute :ssl_cert,          :kind_of => String,
   :default => "ssl-cert-snakeoil.pem"
 attribute :ssl_key,           :kind_of => String,
   :default => "ssl-cert-snakeoil.key"
-attribute :env,               :kind_of => String
-attribute :site_vars,         :kind_of => Hash
+attribute :vhost_vars,        :kind_of => Hash
 
-def initialize(name, run_context=nil)
+def initialize(*args)
   super
   @action = :create
-  @command = name
 end
