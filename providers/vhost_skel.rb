@@ -262,8 +262,7 @@ def vhost_vars
     :vhost            => new_resource.name,
     :docroot          => docroot_path,
     :directory_root   => directory_root,
-    :host_name        => new_resource.host_name ||
-                         new_resource.name,
+    :host_name        => new_resource.host_name || nil,
     :host_aliases     => new_resource.host_aliases,
     :listen_ports     => new_resource.listen_ports,
     :ssl_listen_ports => new_resource.ssl_listen_ports,
