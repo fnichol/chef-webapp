@@ -258,6 +258,12 @@ def vhost_vars
     directory_root = nil
   end
 
+  ssl_chain = if new_resource.ssl_chain.nil?
+    nil
+  else
+    ::File.join(node[:webapp][:ssl][:certs_dir], new_resource.ssl_chain)
+  end
+
   vhost_vars = {
     :vhost            => new_resource.name,
     :docroot          => docroot_path,
@@ -274,6 +280,7 @@ def vhost_vars
                                      new_resource.ssl_cert),
     :ssl_key          => ::File.join(node[:webapp][:ssl][:keys_dir],
                                      new_resource.ssl_key),
+    :ssl_chain        => ssl_chain,
     :partials_path    => ::File.join(partials_path, new_resource.name)
   }
 

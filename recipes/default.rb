@@ -81,6 +81,7 @@ node[:webapp][:vhosts].each do |vhost|
     ssl_www_redirect  vhost[:ssl_www_redirect]  unless vhost[:ssl_www_redirect].nil?
     ssl_cert          vhost[:ssl_cert]          if vhost[:ssl_cert]
     ssl_key           vhost[:ssl_key]           if vhost[:ssl_key]
+    ssl_chain         vhost[:ssl_chain]         if vhost[:ssl_chain]
     vhost_vars        vhost[:vhost_vars]        if vhost[:vhost_vars]
     action            vhost[:action].to_sym     if vhost[:action]
   end

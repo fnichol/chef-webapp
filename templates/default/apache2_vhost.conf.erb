@@ -62,8 +62,11 @@
   SSLEngine         On
   SSLCipherSuite    ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
-  SSLCertificateFile    <%= @ssl_cert %>
-  SSLCertificateKeyFile <%= @ssl_key %>
+  SSLCertificateFile      <%= @ssl_cert %>
+  SSLCertificateKeyFile   <%= @ssl_key %>
+<% unless @ssl_chain.nil? -%>
+  SSLCertificateChainFile <%= @ssl_chain %>
+<% end -%>
 
   SetEnvIf          User-Agent ".*MSIE.*" \
                     nokeepalive ssl-unclean-shutdown \

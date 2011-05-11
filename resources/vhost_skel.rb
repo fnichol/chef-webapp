@@ -35,6 +35,7 @@ attribute :ssl_cert,          :kind_of => String,
   :default => "ssl-cert-snakeoil.pem"
 attribute :ssl_key,           :kind_of => String,
   :default => "ssl-cert-snakeoil.key"
+attribute :ssl_chain,         :kind_of => String
 attribute :vhost_vars,        :kind_of => Hash
 
 def initialize(*args)
