@@ -168,7 +168,7 @@ def vhost_docroot(exec_action)
     end
     d.run_action(:delete) if ::File.directory?(docroot_path)
 
-    f = file ::File.join(partials_path, new_resource.name, "_docroot_stub.conf") do
+    f = file ::File.join(partials_path, "_docroot_stub.conf") do
       action  :nothing
     end
     f.run_action(:delete)
@@ -196,7 +196,7 @@ def vhost_docroot(exec_action)
     end
     d.run_action(:create)
 
-    t = template ::File.join(partials_path, new_resource.name, "_docroot_stub.conf") do
+    t = template ::File.join(partials_path, "_docroot_stub.conf") do
       source      "#{web_server}_docroot_stub.conf.erb"
       owner       "root"
       group       "root"
