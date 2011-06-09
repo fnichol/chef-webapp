@@ -306,8 +306,8 @@ end
 
 def partials_path
   if web_server == "apache2"
-    ::File.join(node[:apache][:dir], "webapp-partials", vhost)
+    ::File.join(node[:apache][:dir], "webapp-partials", new_resource.name)
   else
-    ::File.join(node[:nginx][:dir], "webapp-partials", vhost)
+    ::File.join(node[:nginx][:dir], "webapp-partials", new_resource.name)
   end
 end
