@@ -12,9 +12,9 @@ end
 
 def partials_path
   if web_server == "apache2"
-    ::File.join(node[:apache][:dir], "webapp-partials")
+    ::File.join(node[:apache][:dir], "webapp-partials", vhost)
   else
-    ::File.join(node[:nginx][:dir], "webapp-partials")
+    ::File.join(node[:nginx][:dir], "webapp-partials", vhost)
   end
 end
 
