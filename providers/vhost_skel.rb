@@ -289,7 +289,7 @@ def vhost_vars
     :ssl_key          => ::File.join(node[:webapp][:ssl][:keys_dir],
                                      new_resource.ssl_key),
     :ssl_chain        => ssl_chain,
-    :partials_path    => ::File.join(partials_path, new_resource.name)
+    :partials_path    => partials_path
   }
 
   vhost_vars.merge!(new_resource.vhost_vars) if new_resource.vhost_vars
