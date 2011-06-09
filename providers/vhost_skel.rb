@@ -67,6 +67,14 @@ end
 #
 # @params [:create, :delete] desired state of conf file
 def vhost_conf(exec_action)
+  directory partials_path do
+    owner     "root"
+    group     "root"
+    mode      '0755'
+    recursive true
+    action    :create
+  end
+
   template ::File.join(sites_available_path, "#{new_resource.name}.conf") do
     source      "#{web_server}_vhost.conf.erb"
     cookbook    'webapp'
