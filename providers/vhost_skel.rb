@@ -67,6 +67,14 @@ end
 #
 # @params [:create, :delete] desired state of conf file
 def vhost_conf(exec_action)
+  directory partials_path do
+    owner     "root"
+    group     "root"
+    mode      '0755'
+    recursive true
+    action    :create
+  end
+
   template ::File.join(sites_available_path, "#{new_resource.name}.conf") do
     source      "#{web_server}_vhost.conf.erb"
     cookbook    'webapp'
@@ -281,7 +289,7 @@ def vhost_vars
     :ssl_key          => ::File.join(node[:webapp][:ssl][:keys_dir],
                                      new_resource.ssl_key),
     :ssl_chain        => ssl_chain,
-    :partials_path    => ::File.join(partials_path, new_resource.name)
+    :partials_path    => partials_path
   }
 
   vhost_vars.merge!(new_resource.vhost_vars) if new_resource.vhost_vars
@@ -294,4 +302,12 @@ end
 
 def docroot_path
   ::File.join(docroot_base_path, new_resource.name)
+end
+
+def partials_path
+  if web_server == "apache2"
+    ::File.join(node[:apache][:dir], "webapp-partials", new_resource.name)
+  else
+    ::File.join(node[:nginx][:dir], "webapp-partials", new_resource.name)
+  end
 end
