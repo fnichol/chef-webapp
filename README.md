@@ -1,20 +1,136 @@
+# DISCLAIMER
+
+The contents of this document are in active development and therefore may not
+be entirely accurate.
+
 # Description
 
 # Requirements
+
+## Chef
 
 ## Platform
 
 ## Cookbooks
 
-# Recipes
+# Installation
 
-# Attributes
+Depending on the situation and use case there are several ways to install
+this cookbook. All the methods listed below assume a tagged version release
+is the target, but omit the tags to get the head of development. A valid
+Chef repository structure like the [Opscode repo][chef_repo] is also assumed.
+
+## Using Librarian
+
+The [Librarian][librarian] gem aims to be Bundler for your Chef cookbooks.
+Include a reference to the cookbook in a **Cheffile** and run
+`librarian-chef install`. To install with Librarian:
+
+    gem install librarian
+    cd chef-repo
+    librarian-chef init
+    cat >> Cheffile <<END_OF_CHEFFILE
+    cookbook 'webapp',
+      :git => 'git://github.com/fnichol/chef-webapp.git', :ref => 'v0.2.0'
+    END_OF_CHEFFILE
+    librarian-chef install
+
+## Using knife-github-cookbooks
+
+The [knife-github-cookbooks][kgc] gem is a plugin for *knife* that supports
+installing cookbooks directly from a GitHub repository. To install with the
+plugin:
+
+    gem install knife-github-cookbooks
+    cd chef-repo
+    knife cookbook github install fnichol/chef-webapp/v0.2.0
+
+## As a Git Submodule
+
+A common practice (which is getting dated) is to add cookbooks as Git
+submodules. This is accomplishes like so:
+
+    cd chef-repo
+    git submodule add git://github.com/fnichol/chef-webapp.git cookbooks/webapp
+    git submodule init && git submodule update
+
+**Note:** the head of development will be linked here, not a tagged release.
+
+## As a Tarball
+
+If the cookbook needs to downloaded temporarily just to be uploaded to a Chef
+Server or Opscode Hosted Chef, then a tarball installation might fit the bill:
+
+    cd chef-repo/cookbooks
+    curl -Ls https://github.com/fnichol/chef-webapp/tarball/v0.2.4 | tar xfz - && \
+      mv fnichol-chef-webapp-* webapp
 
 # Usage
 
+# Recipes
+
+## default
+
+# Attributes
+
+## vhosts
+
+## apps
+
+## web\_server
+
+## sites\_root
+
+## ssl/certs\_dir
+
+## ssl/keys\_dir
+
+## default/user
+
+## users
+
 # Resources and Providers
 
-## webapp_site_skel
+## webapp\_app\_skel
+
+### Actions
+
+Action    |Description                   |Default
+----------|------------------------------|-------
+create    ||Yes
+delete    ||
+disable   ||
+
+### Attributes
+
+Attribute         |Description |Default value
+------------------|------------|-------------
+
+### Examples
+
+Coming soon...
+
+## webapp\_vhost\_skel
+
+### Actions
+
+Action    |Description                   |Default
+----------|------------------------------|-------
+create    ||Yes
+delete    ||
+disable   ||
+finalize  ||
+
+### Attributes
+
+Attribute         |Description |Default value
+------------------|------------|-------------
+
+### Examples
+
+Coming soon...
+
+## webapp_site_skel (out of date)
 
 ### Actions
 
@@ -86,6 +202,14 @@ offline. It also answers to multiple host names and `www.*` prefixes.
 **Note:** Disabling the web application will not delete it but de-register it
 from the web server's enabled virtual hosts.
 
+# Development
+
+* Source hosted at [GitHub][repo]
+* Report issues/Questions/Feature requests on [GitHub Issues][issues]
+
+Pull requests are very welcome! Make sure your patches are well tested.
+Ideally create a topic branch for every separate change you make.
+
 # License and Author
 
 Author:: Fletcher Nichol (<fnichol@nichol.ca>)
@@ -103,3 +227,6 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+[repo]:         https://github.com/fnichol/chef-webapp
+[issues]:       https://github.com/fnichol/chef-webapp/issues
