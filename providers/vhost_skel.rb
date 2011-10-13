@@ -136,7 +136,7 @@ def apache2_site_enable(exec_action)
     execute "a2ensite #{new_resource.name}.conf" do
       command "/usr/sbin/a2ensite #{new_resource.name}.conf"
       notifies :restart, resources(:service => "apache2")
-      not_if do 
+      not_if do
         ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/#{new_resource.name}.conf") or
           ::File.symlink?("#{node[:apache][:dir]}/sites-enabled/000-#{new_resource.name}.conf")
       end
