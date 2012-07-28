@@ -16,4 +16,4 @@ recommends "rvm"
 recommends "rvm_passenger"
 recommends "php"
 
-recipe "webapp"
+recipe "webapp", "Installs/Configures hosted web applications"
